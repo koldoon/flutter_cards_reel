@@ -8,7 +8,7 @@ Simply add as a dependency in `pubspec.yaml`
 
 ```
 dependencies:
-  cards_reel: any
+  flutter_cards_reel: any
 ```
 
 ## Usage
