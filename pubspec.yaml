@@ -1,7 +1,7 @@
-name: cards_reel
+name: flutter_cards_reel
 description: Cards Reel list component respecting Flutter Slivers protocol
 version: 0.0.1
-homepage:
+homepage: https://github.com/koldoon/flutter_cards_reel
 
 environment:
   sdk: ">=2.17.6 <3.0.0"
