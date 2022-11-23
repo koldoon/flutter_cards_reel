@@ -1,6 +1,6 @@
-import 'package:cards_reel/cards_reel_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_cards_reel/cards_reel_view.dart';
 
 import 'colorful_card.dart';
 

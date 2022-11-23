@@ -73,9 +73,12 @@ class RenderSliverCardsReel extends RenderSliverMultiBoxAdaptor {
     childManager.setDidUnderflow(false);
 
     final scrollUnit = itemExtent - itemHeaderExtent;
-    // There is almost no point to have less than 2 visible items
-    final visibleItemsCount = max(2, ((constraints.viewportMainAxisExtent - itemExtent) / itemHeaderExtent + 1).ceil());
     final firstVisibleIndex = (constraints.scrollOffset / scrollUnit - 1).floor();
+    // There is almost no point to have less than 2 visible items
+    var visibleItemsCount = max(2, ((constraints.viewportMainAxisExtent - itemExtent) / itemHeaderExtent + 1).ceil());
+    if (!openFirstItem) {
+      visibleItemsCount += 1;
+    }
     final lastVisibleIndex = firstVisibleIndex + visibleItemsCount;
     final childConstraints = constraints.asBoxConstraints();
 
@@ -104,7 +107,7 @@ class RenderSliverCardsReel extends RenderSliverMultiBoxAdaptor {
     }
 
     // Select layout strategy
-    final lastScrollableItemIndex = openFirstItem ? indexOf(lastChild!) : indexOf(lastChild!) - 1;
+    final lastScrollableItemIndex = openFirstItem ? indexOf(lastChild!) : max(0, indexOf(lastChild!) - 1);
     final isRollingIn = openFirstItem && constraints.scrollOffset < itemExtent - itemHeaderExtent;
     final isRollingOut = reachedEnd && constraints.scrollOffset > lastScrollableItemIndex * scrollUnit;
 
