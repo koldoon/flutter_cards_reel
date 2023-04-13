@@ -16,16 +16,9 @@ class CardsReelView extends StatelessWidget {
     this.controller,
     this.physics,
     super.key,
-  }) {
-    itemBuilder = (context, index) {
-      if (index >= children.length) {
-        return null;
-      }
-      return children[index];
-    };
-  }
+  }) : itemBuilder = makeBuilder(children);
 
-  CardsReelView.builder({
+  const CardsReelView.builder({
     required this.itemExtent,
     required this.itemHeaderExtent,
     required this.itemBuilder,
@@ -39,7 +32,16 @@ class CardsReelView extends StatelessWidget {
     super.key,
   });
 
-  late final NullableIndexedWidgetBuilder itemBuilder;
+  static NullableIndexedWidgetBuilder makeBuilder(List<Widget> children) {
+    return (context, index) {
+      if (index >= children.length) {
+        return null;
+      }
+      return children[index];
+    };
+  }
+
+  final NullableIndexedWidgetBuilder itemBuilder;
   final double itemExtent;
   final double itemHeaderExtent;
   final ScrollController? controller;

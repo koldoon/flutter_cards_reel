@@ -43,7 +43,7 @@ class CardsReelPageScrollPhysics extends ScrollPhysics {
       velocity,
     );
 
-    if (settlingPixels != position.pixels)
+    if (settlingPixels != position.pixels) {
       return ScrollSpringSimulation(
         spring,
         position.pixels,
@@ -51,6 +51,7 @@ class CardsReelPageScrollPhysics extends ScrollPhysics {
         velocity,
         tolerance: tolerance,
       );
+    }
 
     return null;
   }
