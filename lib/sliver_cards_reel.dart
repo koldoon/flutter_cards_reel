@@ -31,7 +31,7 @@ class SliverCardsReel extends SliverMultiBoxAdaptorWidget {
       childManager: element,
       itemExtent: itemExtent,
       itemHeaderExtent: itemHeaderExtent,
-      scrollToEnd: scrollToEnd,
+      standAloneSliver: scrollToEnd,
       openFirstItem: openFirstItem,
     );
   }
@@ -41,7 +41,7 @@ class SliverCardsReel extends SliverMultiBoxAdaptorWidget {
     renderObject
       ..itemExtent = itemExtent
       ..itemHeaderExtent = itemHeaderExtent
-      ..scrollToEnd = scrollToEnd
+      ..standAloneSliver = scrollToEnd
       ..openFirstItem = openFirstItem;
   }
 }
@@ -51,7 +51,7 @@ class RenderSliverCardsReel extends RenderSliverMultiBoxAdaptor {
     required RenderSliverBoxChildManager childManager,
     required this.itemHeaderExtent,
     required this.itemExtent,
-    this.scrollToEnd = false,
+    this.standAloneSliver = false,
     this.openFirstItem = true,
   }) : super(childManager: childManager);
 
@@ -62,7 +62,7 @@ class RenderSliverCardsReel extends RenderSliverMultiBoxAdaptor {
   /// is in the middle, this property must be false. Otherwise when the last card
   /// is scrolled to upper position user will have to do some extra scrolling
   /// to get next sliver scrolled (looks like CustomScrollView bug)
-  bool scrollToEnd;
+  bool standAloneSliver;
   double itemExtent;
   double itemHeaderExtent;
 
@@ -75,7 +75,8 @@ class RenderSliverCardsReel extends RenderSliverMultiBoxAdaptor {
     final scrollUnit = itemExtent - itemHeaderExtent;
     final firstVisibleIndex = (constraints.scrollOffset / scrollUnit - 1).floor();
     // There is almost no point to have less than 2 visible items
-    var visibleItemsCount = max(2, ((constraints.viewportMainAxisExtent - itemExtent) / itemHeaderExtent + 1).ceil());
+    var visibleItemsCount =
+        max(2, ((constraints.viewportMainAxisExtent - itemExtent) / itemHeaderExtent + 1).ceil());
     if (!openFirstItem) {
       visibleItemsCount += 1;
     }
@@ -162,8 +163,10 @@ class RenderSliverCardsReel extends RenderSliverMultiBoxAdaptor {
       final lastChildParentData = lastChild!.parentData as SliverMultiBoxAdaptorParentData;
       paintExtent = lastChildParentData.layoutOffset! - constraints.scrollOffset + paintExtentOf(lastChild!);
 
-      if (scrollToEnd) {
-        scrollExtent = (childManager.childCount - 1) * scrollUnit + constraints.remainingPaintExtent;
+      if (standAloneSliver) {
+        var correction = 1;
+        if (!openFirstItem) correction++;
+        scrollExtent = (childManager.childCount - correction) * scrollUnit + constraints.remainingPaintExtent;
       } else {
         scrollExtent = lastChildParentData.layoutOffset! + paintExtentOf(lastChild!);
       }
@@ -172,7 +175,9 @@ class RenderSliverCardsReel extends RenderSliverMultiBoxAdaptor {
     var paintOrigin = constraints.overlap < 0.0 ? -constraints.overlap : 0.0;
     paintExtent = (paintExtent - paintOrigin - precisionErrorTolerance);
     if (paintExtent < 0) paintExtent = 0;
-    if (paintExtent + paintOrigin > constraints.remainingPaintExtent) paintExtent = constraints.remainingPaintExtent - paintOrigin;
+    if (paintExtent + paintOrigin > constraints.remainingPaintExtent) {
+      paintExtent = constraints.remainingPaintExtent - paintOrigin;
+    }
 
     geometry = SliverGeometry(
       scrollExtent: scrollExtent,
@@ -292,10 +297,16 @@ class CardsReelIntermediateLayout implements CardsReelLayout {
     for (var i = 0; i < visibleItemsCount; i++) {
       if (i == 1) {
         // Second (visible on the screen) card must be fully open
-        tweenItems.add(TweenSequenceItem(tween: Tween(begin: extent, end: extent + itemExtent), weight: 1));
+        tweenItems.add(TweenSequenceItem(
+          tween: Tween(begin: extent, end: extent + itemExtent),
+          weight: 1,
+        ));
         extent += itemExtent;
       } else {
-        tweenItems.add(TweenSequenceItem(tween: Tween(begin: extent, end: extent + itemHeaderExtent), weight: 1));
+        tweenItems.add(TweenSequenceItem(
+          tween: Tween(begin: extent, end: extent + itemHeaderExtent),
+          weight: 1,
+        ));
         extent += itemHeaderExtent;
       }
     }

@@ -1,4 +1,4 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 
 class CardsReelPageScrollPhysics extends ScrollPhysics {
   const CardsReelPageScrollPhysics({
@@ -34,10 +34,16 @@ class CardsReelPageScrollPhysics extends ScrollPhysics {
     // Create a test simulation to see where it would have ballistically fallen
     // naturally without settling onto items.
     final testFrictionSimulation = super.createBallisticSimulation(position, velocity);
-    final suggestedPixels = testFrictionSimulation?.x(double.infinity) ?? position.pixels;
+    final suggestedSettlingPixels = testFrictionSimulation?.x(double.infinity) ?? position.pixels;
 
-    final settlingPixels = _getSettlingPixels(position.pixels, suggestedPixels, tolerance, velocity);
-    if (settlingPixels != position.pixels) {
+    final settlingPixels = _getSettlingPixels(
+      position.pixels,
+      suggestedSettlingPixels,
+      tolerance,
+      velocity,
+    );
+
+    if (settlingPixels != position.pixels)
       return ScrollSpringSimulation(
         spring,
         position.pixels,
@@ -45,13 +51,20 @@ class CardsReelPageScrollPhysics extends ScrollPhysics {
         velocity,
         tolerance: tolerance,
       );
-    }
+
     return null;
   }
 
-  double _getSettlingPixels(double currentPixels, double suggestedPixels, Tolerance tolerance, double velocity) {
+  double _getSettlingPixels(
+    double currentPixels,
+    double frictionSettlingPixels,
+    Tolerance tolerance,
+    double velocity,
+  ) {
     var page = getPageIndexDelegate(currentPixels);
-    final delta = (getPageIndexDelegate(suggestedPixels - currentPixels)).abs().clamp(0, maxScrollPagesAtOnce - 1);
+    final delta = (getPageIndexDelegate(frictionSettlingPixels - currentPixels))
+        .abs()
+        .clamp(0, maxScrollPagesAtOnce - 1);
     if (velocity < -tolerance.velocity) page -= 0.3 + delta;
     if (velocity > tolerance.velocity) page += 0.3 + delta;
     return getScrollOffsetDelegate(page.roundToDouble());
